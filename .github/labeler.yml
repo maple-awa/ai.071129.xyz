@@ -1,0 +1,22 @@
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - README.md
+          - CONTRIBUTING.md
+          - .github/**/*.md
+          - .github/ISSUE_TEMPLATE/**
+          - .github/labels.yml
+          - .github/labeler.yml
+          - .github/workflows/**
+
+area:docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - README.md
+          - CONTRIBUTING.md
+          - .github/**
+
+area:automation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/**

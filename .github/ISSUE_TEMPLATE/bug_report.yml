@@ -1,0 +1,117 @@
+name: Bug 反馈
+description: 提交站点异常、报错、逻辑错误或显示问题
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请尽量把信息写完整，便于快速复现和定位。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 问题描述
+      description: 简要说明问题是什么
+      placeholder: 例如：登录后页面一直空白，没有跳转到控制台
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 按顺序描述如何触发这个问题
+      placeholder: |
+        1. 打开 xx 页面
+        2. 点击 xx 按钮
+        3. 输入 xx 内容
+        4. 出现 xx 问题
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      placeholder: 例如：登录成功后跳转到首页
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      placeholder: 例如：页面空白 / 报错 / 卡住不动
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: 影响范围
+      description: 用于帮助判断处理优先级
+      options:
+        - 仅个别文案或轻微体验问题
+        - 部分功能受影响，但有替代方案
+        - 核心功能受影响，无稳定替代方案
+        - 完全无法使用 / 大面积故障
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 截图、报错或日志
+      description: 可粘贴报错信息、控制台日志或补充截图链接
+      render: shell
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 浏览器
+      options:
+        - Chrome
+        - Edge
+        - Firefox
+        - Safari
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: 操作系统
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Android
+        - iOS
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: page
+    attributes:
+      label: 问题页面或功能入口
+      placeholder: 例如：/login 或 控制台 -> 模型管理
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充信息
+      description: 其他你认为有帮助的信息
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已经检查过是否存在重复 Issue
+          required: true
+        - label: 我已经尽量提供了可复现所需的信息
+          required: true

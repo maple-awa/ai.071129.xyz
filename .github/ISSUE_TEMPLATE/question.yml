@@ -1,0 +1,53 @@
+name: 使用咨询
+description: 提交使用问题、配置疑问或暂时无法判断是否为 Bug 的情况
+title: "[Question] "
+labels:
+  - question
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: 具体问题
+      description: 请直接描述你不会用、看不懂或卡住的地方
+      placeholder: 例如：API Key 应该在哪里填写，填写后为什么仍然无法调用
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: 你已经尝试过什么
+      description: 写明你已经做过的操作，避免重复排查
+      placeholder: 例如：已刷新页面、重新保存配置、重新登录
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: 当前影响程度
+      description: 用于帮助判断处理优先级
+      options:
+        - 一般咨询，不影响当前使用
+        - 有影响，但还能继续使用
+        - 阻塞当前使用
+    validations:
+      required: true
+
+  - type: input
+    id: page
+    attributes:
+      label: 相关页面或功能入口
+      placeholder: 例如：设置页 / 模型页 / 登录页
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 补充上下文
+      description: 可填写截图、报错信息、预期用途等
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已经先查看过仓库中是否有类似问题
+          required: true

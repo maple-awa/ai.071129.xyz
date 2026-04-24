@@ -1,0 +1,119 @@
+- name: bug
+  color: "d73a4a"
+  description: 功能异常、报错、逻辑错误或显示问题
+
+- name: enhancement
+  color: "a2eeef"
+  description: 新功能、流程优化或体验改进建议
+
+- name: question
+  color: "d876e3"
+  description: 使用咨询、配置疑问或待确认问题
+
+- name: documentation
+  color: "0075ca"
+  description: 文档、说明或模板相关改动
+
+- name: stale
+  color: "ededed"
+  description: 长时间无更新，等待补充或自动关闭
+
+- name: area:ui
+  color: "1d76db"
+  description: 与页面展示、交互或前端体验相关
+
+- name: area:api
+  color: "5319e7"
+  description: 与接口调用、请求失败或返回异常相关
+
+- name: area:auth
+  color: "0052cc"
+  description: 与登录、鉴权、账号或权限相关
+
+- name: area:login
+  color: "0049b7"
+  description: 与登录页、登录流程或登录跳转相关
+
+- name: area:docs
+  color: "0e8a16"
+  description: 与 README、模板、说明文档或流程文档相关
+
+- name: area:config
+  color: "0366d6"
+  description: 与站点配置、环境变量或基础设置相关
+
+- name: area:key
+  color: "6f42c1"
+  description: 与 API Key、令牌配置或密钥管理相关
+
+- name: area:settings
+  color: "c5def5"
+  description: 与设置页、参数配置页或偏好设置相关
+
+- name: area:model
+  color: "c2e0c6"
+  description: 与模型选择、模型列表或模型能力相关
+
+- name: area:proxy
+  color: "fef2c0"
+  description: 与中转、代理、线路或请求转发相关
+
+- name: area:routing
+  color: "f9d0c4"
+  description: 与路由策略、模型路由或请求分流相关
+
+- name: area:upstream
+  color: "fef2c0"
+  description: 与上游渠道、供应商兼容性或上游接口相关
+
+- name: area:dashboard
+  color: "bfd4f2"
+  description: 与控制台、管理页或仪表盘相关
+
+- name: area:usage
+  color: "d4c5f9"
+  description: 与用量统计、消耗记录或配额展示相关
+
+- name: area:automation
+  color: "5319e7"
+  description: 与 GitHub Actions、自动化流程或仓库机器人相关
+
+- name: needs-info
+  color: "f9d0c4"
+  description: 当前信息不足，需要补充上下文后才能继续处理
+
+- name: confirmed
+  color: "0e8a16"
+  description: 已确认问题存在或建议有效
+
+- name: in-progress
+  color: "fbca04"
+  description: 正在处理或已有明确跟进动作
+
+- name: blocked
+  color: "b60205"
+  description: 处理被其他问题、依赖或环境限制阻塞
+
+- name: duplicate
+  color: "cfd3d7"
+  description: 与已有 Issue 重复
+
+- name: invalid
+  color: "e4e669"
+  description: 不属于本仓库处理范围或问题描述无效
+
+- name: wontfix
+  color: "ffffff"
+  description: 已评估但当前不计划处理
+
+- name: priority:low
+  color: "bfdadc"
+  description: 低优先级，影响较小或可接受绕过
+
+- name: priority:medium
+  color: "fbca04"
+  description: 中优先级，需要排期处理
+
+- name: priority:high
+  color: "d93f0b"
+  description: 高优先级，影响明显或范围较大

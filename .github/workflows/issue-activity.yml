@@ -1,0 +1,115 @@
+name: Issue Activity
+
+on:
+  issue_comment:
+    types:
+      - created
+  pull_request_review_comment:
+    types:
+      - created
+  pull_request_review:
+    types:
+      - submitted
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  issue-comment-management:
+    if: github.event_name == 'issue_comment'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update issue labels by comment activity
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const comment = context.payload.comment;
+            const association = comment.author_association || "NONE";
+            const maintainerAssociations = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+            const isMaintainer = maintainerAssociations.has(association);
+            const issueNumber = issue.number;
+
+            const { data: current } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            const labels = new Set(current.labels.map(label => label.name));
+            const isPullRequest = Boolean(issue.pull_request);
+            const commentBody = (comment.body || "").trim();
+
+            if (!isMaintainer && labels.has("needs-info") && commentBody.length >= 20) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: "needs-info"
+              }).catch(() => {});
+            }
+
+            if (isMaintainer && !labels.has("in-progress")) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ["in-progress"]
+              });
+            }
+
+            if (isMaintainer && labels.has("stale")) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: "stale"
+              }).catch(() => {});
+            }
+
+            if (!isMaintainer && isPullRequest) {
+              return;
+            }
+
+  pr-review-management:
+    if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request_review_comment'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update pull request labels by maintainer activity
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const review = context.payload.review || context.payload.comment;
+            const association = review?.author_association || "NONE";
+            const maintainerAssociations = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+
+            if (!maintainerAssociations.has(association)) {
+              return;
+            }
+
+            const pullNumber = context.payload.pull_request.number;
+            const { data: current } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullNumber
+            });
+            const labels = new Set(current.labels.map(label => label.name));
+
+            if (!labels.has("in-progress")) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pullNumber,
+                labels: ["in-progress"]
+              });
+            }
+
+            if (labels.has("stale")) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pullNumber,
+                name: "stale"
+              }).catch(() => {});
+            }

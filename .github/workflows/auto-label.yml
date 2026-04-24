@@ -1,0 +1,256 @@
+name: Auto Label
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  label-issue:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label issue by title and content
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.issue.title || "";
+            const body = context.payload.issue.body || "";
+            const content = `${title}\n${body}`.toLowerCase();
+            const labels = new Set(context.payload.issue.labels.map(label => label.name));
+            const toAdd = [];
+            let addedNeedsInfo = false;
+
+            function addLabel(label) {
+              if (!labels.has(label) && !toAdd.includes(label)) {
+                toAdd.push(label);
+                if (label === "needs-info") {
+                  addedNeedsInfo = true;
+                }
+              }
+            }
+
+            function getSectionValue(markdown, heading) {
+              const pattern = new RegExp(`### ${heading}\\s+([\\s\\S]*?)(?=\\n### |$)`, "i");
+              const match = markdown.match(pattern);
+              if (!match) {
+                return "";
+              }
+              return match[1].trim().toLowerCase();
+            }
+
+            const prefixRules = [
+              { prefix: "[Bug]", label: "bug" },
+              { prefix: "[Feature]", label: "enhancement" },
+              { prefix: "[Question]", label: "question" },
+              { prefix: "[Docs]", label: "documentation" }
+            ];
+
+            for (const rule of prefixRules) {
+              if (title.startsWith(rule.prefix) && !labels.has(rule.label)) {
+                addLabel(rule.label);
+              }
+            }
+
+            const keywordRules = [
+              { label: "documentation", keywords: ["readme", "文档", "模板", "issue template", "pull request template", "contributing"] },
+              { label: "area:docs", keywords: ["readme", "文档", "模板", "issue template", "pull request template", "contributing"] },
+              { label: "area:ui", keywords: ["页面", "界面", "按钮", "弹窗", "前端", "ui", "样式", "布局", "显示", "空白页"] },
+              { label: "area:api", keywords: ["api", "接口", "请求", "响应", "调用失败", "返回", "状态码", "token", "endpoint"] },
+              { label: "area:auth", keywords: ["登录", "注册", "鉴权", "认证", "权限", "账号", "session"] },
+              { label: "area:login", keywords: ["登录页", "/login", "signin", "sign in", "登录跳转", "登录后"] },
+              { label: "area:key", keywords: ["api key", "apikey", "密钥", "key", "令牌"] },
+              { label: "area:settings", keywords: ["设置页", "设置", "偏好设置", "/settings", "参数配置"] },
+              { label: "area:model", keywords: ["模型", "model", "gpt", "claude", "gemini", "deepseek"] },
+              { label: "area:proxy", keywords: ["中转", "代理", "转发", "线路", "节点", "proxy", "upstream"] },
+              { label: "area:routing", keywords: ["路由", "routing", "分流", "回源", "模型路由"] },
+              { label: "area:upstream", keywords: ["上游", "provider", "供应商", "兼容性", "openai", "anthropic", "google"] },
+              { label: "area:config", keywords: ["配置", "环境变量", "设置", "set up", "config"] },
+              { label: "area:dashboard", keywords: ["控制台", "dashboard", "管理页", "仪表盘", "后台"] },
+              { label: "area:usage", keywords: ["用量", "额度", "余额", "消耗", "统计", "usage", "quota", "billing"] },
+              { label: "area:automation", keywords: ["github actions", "workflow", "自动化", "机器人", "label", "stale"] }
+            ];
+
+            for (const rule of keywordRules) {
+              if (!labels.has(rule.label) && rule.keywords.some(keyword => content.includes(keyword))) {
+                addLabel(rule.label);
+              }
+            }
+
+            const needsInfoHints = [
+              "待补充",
+              "不确定",
+              "无法复现",
+              "没有截图",
+              "没有日志",
+              "无报错"
+            ];
+
+            if (!labels.has("needs-info") && body.trim().length < 30) {
+              addLabel("needs-info");
+            } else if (!labels.has("needs-info") && needsInfoHints.some(keyword => content.includes(keyword.toLowerCase()))) {
+              addLabel("needs-info");
+            }
+
+            const impactValue = getSectionValue(body, "影响范围");
+            const suggestionPriorityValue = getSectionValue(body, "建议优先级");
+            const urgencyValue = getSectionValue(body, "当前影响程度");
+            const pageValue = getSectionValue(body, "问题页面或功能入口") || getSectionValue(body, "相关页面或功能入口");
+            const summaryValue = getSectionValue(body, "问题描述") || getSectionValue(body, "具体问题");
+            const stepsValue = getSectionValue(body, "复现步骤");
+            const actualValue = getSectionValue(body, "实际结果");
+
+            if (impactValue) {
+              if (impactValue.includes("完全无法使用 / 大面积故障".toLowerCase()) || impactValue.includes("核心功能受影响，无稳定替代方案".toLowerCase())) {
+                addLabel("priority:high");
+              } else if (impactValue.includes("部分功能受影响，但有替代方案".toLowerCase())) {
+                addLabel("priority:medium");
+              } else if (impactValue.includes("仅个别文案或轻微体验问题".toLowerCase())) {
+                addLabel("priority:low");
+              }
+            }
+
+            if (suggestionPriorityValue) {
+              if (suggestionPriorityValue.includes("高")) {
+                addLabel("priority:high");
+              } else if (suggestionPriorityValue.includes("中")) {
+                addLabel("priority:medium");
+              } else if (suggestionPriorityValue.includes("低")) {
+                addLabel("priority:low");
+              }
+            }
+
+            if (urgencyValue) {
+              if (urgencyValue.includes("阻塞当前使用".toLowerCase())) {
+                addLabel("priority:high");
+              } else if (urgencyValue.includes("有影响，但还能继续使用".toLowerCase())) {
+                addLabel("priority:medium");
+              } else if (urgencyValue.includes("一般咨询，不影响当前使用".toLowerCase())) {
+                addLabel("priority:low");
+              }
+            }
+
+            if (toAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: [...new Set(toAdd)]
+              });
+            }
+
+            const hasEnoughIssueContext =
+              summaryValue.length >= 10 ||
+              (pageValue.length >= 2 && actualValue.length >= 6) ||
+              (stepsValue.length >= 10 && actualValue.length >= 6) ||
+              body.trim().length >= 120;
+
+            if (labels.has("needs-info") && hasEnoughIssueContext) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: "needs-info"
+              }).catch(() => {});
+            }
+
+            if (labels.has("stale") && hasEnoughIssueContext) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: "stale"
+              }).catch(() => {});
+            }
+
+            if (addedNeedsInfo) {
+              const marker = "<!-- needs-info-comment -->";
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                per_page: 100
+              });
+
+              const alreadyCommented = comments.some(comment =>
+                comment.user?.type === "Bot" && comment.body?.includes(marker)
+              );
+
+              if (!alreadyCommented) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: `${marker}
+
+感谢反馈。当前信息还不足以继续判断或复现，因此已自动加上 \`needs-info\` 标签。
+
+请优先补充下面几项：
+- 问题页面或功能入口
+- 清晰的复现步骤
+- 期望结果与实际结果
+- 截图、报错信息或日志
+- 使用环境（浏览器、系统、设备）
+
+补充完成后直接回复这个 Issue 即可，后续就可以继续跟进。`
+                });
+              }
+            }
+
+  label-pr-by-files:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Label PR by title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title || "";
+            const existing = new Set(context.payload.pull_request.labels.map(label => label.name));
+            const toAdd = [];
+
+            const rules = [
+              { prefix: "docs:", labels: ["documentation", "area:docs"] },
+              { prefix: "fix:", labels: ["bug"] },
+              { prefix: "feat:", labels: ["enhancement"] },
+              { prefix: "chore:", labels: ["documentation"] }
+            ];
+
+            for (const rule of rules) {
+              if (title.toLowerCase().startsWith(rule.prefix)) {
+                for (const label of rule.labels) {
+                  if (!existing.has(label)) {
+                    toAdd.push(label);
+                  }
+                }
+              }
+            }
+
+            if (toAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: [...new Set(toAdd)]
+              });
+            }
+
+      - name: Label PR by changed files
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml

@@ -1,0 +1,86 @@
+name: Close Guidance
+
+on:
+  issues:
+    types:
+      - closed
+
+permissions:
+  issues: write
+
+jobs:
+  issue-close-guidance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Align close labels and guidance
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            if (issue.pull_request) {
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = issue.number;
+            const stateReason = issue.state_reason || "";
+            const labels = new Set(issue.labels.map(label => label.name));
+            const title = (issue.title || "").toLowerCase();
+            const body = (issue.body || "").toLowerCase();
+            const content = `${title}\n${body}`;
+            const resultLabels = ["duplicate", "invalid", "wontfix", "confirmed"];
+            const hasResultLabel = resultLabels.some(label => labels.has(label));
+            const toAdd = [];
+
+            if (!hasResultLabel) {
+              if (content.includes("重复") || content.includes("duplicate") || content.includes("已有 issue")) {
+                toAdd.push("duplicate");
+              } else if (stateReason === "not_planned") {
+                toAdd.push("wontfix");
+              } else if (stateReason === "completed") {
+                toAdd.push("confirmed");
+              }
+            }
+
+            if (toAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                labels: [...new Set(toAdd)]
+              });
+            }
+
+            if (!hasResultLabel && toAdd.length === 0) {
+              const marker = "<!-- close-guidance-comment -->";
+              const { data: comments } = await github.rest.issues.listComments({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                per_page: 100
+              });
+
+              const alreadyCommented = comments.some(comment =>
+                comment.user?.type === "Bot" && comment.body?.includes(marker)
+              );
+
+              if (!alreadyCommented) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                  body: `${marker}
+
+这个 Issue 已关闭。
+
+如果这是以下情况，建议补一个结果标签，方便后续检索：
+- \`duplicate\`：与已有 Issue 重复
+- \`invalid\`：不属于本仓库处理范围或信息无效
+- \`wontfix\`：已评估但当前不计划处理
+- \`confirmed\`：问题已确认并处理完成
+
+这样后续统计和回溯会更清晰。`
+                });
+              }
+            }

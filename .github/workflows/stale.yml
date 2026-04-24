@@ -1,0 +1,44 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark stale issues and pull requests
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-label: stale
+          stale-pr-label: stale
+          days-before-stale: 21
+          days-before-close: 7
+          days-before-pr-stale: 30
+          days-before-pr-close: 10
+          exempt-issue-labels: in-progress,blocked,confirmed,priority:high
+          exempt-pr-labels: in-progress,blocked,priority:high
+          remove-stale-when-updated: true
+          stale-issue-message: |
+            这个 Issue 已较长时间没有新的更新。
+
+            如果问题仍然存在，请补充新的复现信息、截图、日志或当前进展；如果在 `7` 天内没有进一步回复，这个 Issue 会被自动关闭。
+          close-issue-message: |
+            由于长期没有进一步信息，这个 Issue 先自动关闭。
+
+            如果问题仍然存在，可以在补充完整上下文后重新打开，或新建一个带完整信息的 Issue。
+          stale-pr-message: |
+            这个 PR 已较长时间没有新的更新。
+
+            如果仍在推进，请补充当前状态或继续提交改动；如果在 `10` 天内没有进一步活动，这个 PR 会被自动关闭。
+          close-pr-message: |
+            由于长期没有进一步活动，这个 PR 先自动关闭。
+
+            如果后续还要继续，可以补充说明后重新打开。

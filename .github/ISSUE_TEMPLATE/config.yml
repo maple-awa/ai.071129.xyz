@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用咨询
+    url: https://github.com/maple-awa/ai.071129.xyz/issues/new?template=question.yml
+    about: 不确定该选什么类型时，优先使用这个入口
