@@ -47,6 +47,56 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: model_id
+    attributes:
+      label: 模型 ID
+      description: 请填写出问题时实际使用的模型 ID
+      placeholder: 例如：gpt-4o-mini / claude-3-5-sonnet / gemini-2.5-pro
+
+  - type: input
+    id: provider
+    attributes:
+      label: 上游提供商或兼容格式
+      description: 例如 OpenAI / Anthropic / Gemini / OpenAI Compatible
+      placeholder: 例如：OpenAI Compatible
+
+  - type: input
+    id: base_url
+    attributes:
+      label: Base URL 或渠道地址
+      description: 如问题与某条线路、渠道或上游地址相关，请填写
+      placeholder: 例如：https://example.com/v1
+
+  - type: input
+    id: api_path
+    attributes:
+      label: 接口路径
+      description: 请尽量填写实际调用的接口路径
+      placeholder: 例如：/v1/chat/completions
+
+  - type: dropdown
+    id: request_mode
+    attributes:
+      label: 请求类型
+      options:
+        - chat.completions
+        - responses
+        - completions
+        - embeddings
+        - images
+        - audio
+        - 其他
+
+  - type: dropdown
+    id: stream
+    attributes:
+      label: 是否流式请求
+      options:
+        - stream=true
+        - stream=false
+        - 不确定
+
   - type: dropdown
     id: impact
     attributes:
@@ -64,7 +114,7 @@ body:
     id: logs
     attributes:
       label: 截图、报错或日志
-      description: 可粘贴报错信息、控制台日志或补充截图链接
+      description: 可粘贴报错信息、响应体、请求参数片段、控制台日志或截图链接
       render: shell
 
   - type: dropdown

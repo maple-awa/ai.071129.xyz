@@ -35,11 +35,25 @@
 信息越完整，越容易排查。建议至少提供这些内容：
 
 - 问题出现的页面或功能入口
+- 模型 ID
+- 上游提供商或兼容格式
+- Base URL 或渠道地址
+- 实际调用的接口路径
+- 请求类型与是否流式
 - 复现步骤
 - 期望结果
 - 实际结果
 - 截图、报错、日志片段
 - 使用环境：设备、浏览器、系统版本、网络情况
+
+如果问题和 AI 调用链有关，建议优先补这些关键信息：
+
+- 模型 ID：例如 `gpt-4o-mini`、`claude-3-5-sonnet`、`gemini-2.5-pro`
+- 提供商或兼容格式：例如 `OpenAI`、`Anthropic`、`Gemini`、`OpenAI Compatible`
+- Base URL / 渠道地址
+- 接口路径：例如 `/v1/chat/completions`、`/v1/responses`
+- 请求模式：如 `chat.completions`、`responses`、`embeddings`
+- 是否流式：`stream=true` 或 `stream=false`
 
 ## Issue 标题建议
 

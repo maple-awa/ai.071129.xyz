@@ -20,6 +20,27 @@ body:
       description: 写明你已经做过的操作，避免重复排查
       placeholder: 例如：已刷新页面、重新保存配置、重新登录
 
+  - type: input
+    id: model_id
+    attributes:
+      label: 相关模型 ID
+      description: 如果问题与某个模型有关，请填写模型 ID
+      placeholder: 例如：gpt-4o-mini
+
+  - type: input
+    id: provider
+    attributes:
+      label: 上游提供商或兼容格式
+      description: 例如 OpenAI / Anthropic / Gemini / OpenAI Compatible
+      placeholder: 例如：OpenAI Compatible
+
+  - type: input
+    id: api_path
+    attributes:
+      label: 相关接口路径
+      description: 如果你是在调接口时遇到问题，请尽量填写
+      placeholder: 例如：/v1/chat/completions
+
   - type: dropdown
     id: urgency
     attributes:

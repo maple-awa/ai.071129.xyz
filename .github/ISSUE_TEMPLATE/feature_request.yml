@@ -26,6 +26,13 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: ai_scope
+    attributes:
+      label: 相关模型 ID / 提供商 / 接口
+      description: 如果建议与某类模型、某个上游或某种接口有关，请尽量写清楚
+      placeholder: 例如：OpenAI Compatible + /v1/chat/completions + gpt-4o-mini
+
   - type: textarea
     id: benefit
     attributes:
